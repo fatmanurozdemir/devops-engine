@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: welcome-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: welcome-service
+  template:
+    metadata:
+      labels:
+        app: welcome-service
+    spec:
+      # hostNetwork: true
+      containers:
+        - name: welcome-service
+          image: registry.gitlab.com/fatmanurozdemir/devops-engine/welcome-service
+          ports:
+            - containerPort: 5051
+      imagePullSecrets:
+        - name: app-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: welcome-service-svc
+spec:
+  selector:
+    app: welcome-service
+  ports:
+    - name: http
+      port: 5051
