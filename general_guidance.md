@@ -81,7 +81,7 @@ Two microservices are configured using flask and html.
     
 ## GitHub Project Integration
 
-weather-forecast application is used in this process.
+`devops-engine/microservices/login-page` application is used in this process.
 
 1. Create github repo
 
@@ -102,3 +102,6 @@ weather-forecast application is used in this process.
     - Paste the trigger URL.
     - Select "push" event.
     - Save your webhook.
+
+4. Test application
+    When you push a file to the Github repository, the Gitlab CI/CD pipeline will be triggered automatically.
