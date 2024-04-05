@@ -16,6 +16,7 @@ spec:
       containers:
         - name: login-page
           image: registry.gitlab.com/fatmanur/devops-engine-data/login-page
+          command: ["python", "login_page.py"]
           # imagePullPolicy: Never
           ports:
             - containerPort: 5000
