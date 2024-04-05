@@ -22,6 +22,7 @@ Prior to this step, ensure Helm is installed by referring to the guidelines prov
     sudo apt-get update
     sudo apt-get install helm
     ```
+    
 ### Container Registry 
 
 - Authenticate to the Container Registry by using your GitLab username and password. If you have Two-Factor Authentication enabled, use a Personal Access Token instead of a password.
@@ -38,21 +39,12 @@ In gitlab-ci.yml file, build and deploy stages are included.
     
 ## MicroService Deployment
 
-Two microservices are configured using flask and html.
-
-- Build docker images for microservice 1
+- Deploy the bookinfo application:
 
     ```bash
-    cd microservices/hello-world-service
-    docker build -t hello-world-service .
+    kubectl apply -f devops-engine/manifest/bookinfo.yaml
     ```
-
-- Build docker images for microservice 2
-
-    ```bash
-    cd microservices/welcome-service
-    docker build -t welcome-service .
-    ```
+    
 ## Istio
 
 - Installation
@@ -73,12 +65,48 @@ Two microservices are configured using flask and html.
     kubectl create -f devops-engine/manifest/bookinfo-gateway.yaml
     ```
     
-- Open the application to outside traffic
+- Determining the ingress IP and ports
+
     ```bash
-    cd devops-engine
-    ./istio_ingress_ip_port.sh
+    # Set the ingress ports:
+    export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+    export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
+    export INGRESS_HOST=127.0.0.1
+    
+    # Set GATEWAY_URL:
+    export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
     ```
     
+- Verify external access
+    1. Run the following command to retrieve the external address of the web application.
+        ```bash
+        echo "http://$GATEWAY_URL/productpage"
+        ```
+    
+    2. Paste the output from the previous command into your web browser and confirm that the Bookinfo product page is displayed.
+
+### View the dashboard
+
+- Use the following instructions to deploy the Kiali dashboard, along with Prometheus and Grafana.
+    ```bash
+    kubectl create -f https://raw.githubusercontent.com/istio/istio/release-1.21/samples/addons/kiali.yaml
+    kubectl create -f https://raw.githubusercontent.com/istio/istio/release-1.21/samples/addons/prometheus.yaml
+    kubectl create -f https://raw.githubusercontent.com/istio/istio/release-1.21/samples/addons/grafana.yaml
+    kubectl rollout status deployment/kiali -n istio-system
+    ```
+- Access to Kiali dashboard
+    ```bash
+    istioctl dashboard kiali
+    ```
+- Trace data
+
+    1. Send requests to the service to see trace data, 
+     ```bash
+     for i in $(seq 1 100); do curl -s -o /dev/null "http://$GATEWAY_URL/productpage"; done
+    ```
+    
+    2. In the left navigation menu, select Graph and in the Namespace drop down, select default.
+
 ## GitHub Project Integration
 
 `devops-engine/microservices/login-page` application is used in this process.
