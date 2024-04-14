@@ -11,4 +11,5 @@ RUN apk add --update \
 
 COPY ./app /app
 
+EXPOSE 5000
 # CMD python login_page.py.py
