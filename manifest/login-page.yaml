@@ -1,35 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: login-page
+  name: loginpage
+  labels:
+    app: loginpage
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: login-page
+      app: loginpage
   template:
     metadata:
       labels:
-        app: login-page
+        app: loginpage
     spec:
-      # hostNetwork: true
       containers:
-        - name: login-page
-          image: registry.gitlab.com/fatmanur/devops-engine-data/login-page
+        - name: loginpage
+          image: login-app
           command: ["python", "login_page.py"]
-          # imagePullPolicy: Never
+          imagePullPolicy: Never
           ports:
             - containerPort: 5000
-      imagePullSecrets:
-        - name: app-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: login-page-svc
+  name: loginpage-svc
 spec:
   selector:
-    app: login-page
+    app: loginpage
   ports:
-    - name: http
-      port: 5000
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 5000
